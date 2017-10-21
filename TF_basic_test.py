@@ -51,23 +51,6 @@ class NeuralNetwork(object):
         self.predict = tf.argmax(self.output, axis=1)
         return(self.predict)
 
-#Initialise OpenAI gym environment
-def initGym():
-    env=gym.make(gameName)
-    obs_dim = env.observation_space.shape[0]
-    act_dim = env.action_space.n    
-    return env, obs_dim , act_dim
-
-
-env, numInput, numOutput=initGym()
-reward_episode=[]
-initial_observation = env.reset()
-observation=initial_observation
-
-
-# Create NN object:
-NN=NeuralNetwork(numInput,numHidden,numOutput)
-
 
 def runNN(rnn, env):
     action=rnn.feedForward()  
@@ -81,9 +64,7 @@ def runNN(rnn, env):
             if done:
                 print("Episode finished after {} timesteps".format(t+1))
                 break
-
 #runNN(NN,env)
-
 
 def getRewardEpisode(rnn, env, NbSteps=1000):
     action=rnn.feedForward()  
@@ -97,12 +78,93 @@ def getRewardEpisode(rnn, env, NbSteps=1000):
                 break
             cum_reward += reward        
         return cum_reward
+#getRewardEpisode(NN,env,1000)
 
 
-NN=NeuralNetwork(numInput,numHidden,numOutput)
-getRewardEpisode(NN,env,1000)
+### MAIN ###
+
+if __name__ == "__main__":
+    #General parameters
+
+    #Initialise OpenAI gym environment
+    def initGym():
+        env=gym.make(gameName)
+        obs_dim = env.observation_space.shape[0]
+        act_dim = env.action_space.n    
+        return env, obs_dim , act_dim
+    
+    
+    env, numInput, numOutput=initGym()
+    reward_episode=[]
+    initial_observation = env.reset()
+    observation=initial_observation
+    
+    
+    # Create a NN object for each worker:
+       
+    NN=[NeuralNetwork(numInput,numHidden,numOutput) for x in range(num_workers)]
+    
+    """ useless??
+    params=[np.random.randn(NN[0].input_size,NN[0].hidden_size),np.random.randn(NN[0].hidden_size,NN[0].output_size)]
+    
+    for nn in NN:
+        nn.wi=params[0]
+        nn.w0=params[1]
+    """
+        
+    #Simulations
+    
+    for i in range (num_episodes):
+        print('episode : ',i)
+        reward_workers=[]
+        incremental_gradient_wo=0
+        incremental_gradient_wi=0
+        
+        for worker in range(num_workers):
+            print('worker n°',worker)
+            dim_hidden_output=NN[0].hidden_size*NN[0].output_size
+            epsilon_wo=np.random.multivariate_normal([0 for x in range(dim_hidden_output)],np.identity(dim_hidden_output)).reshape((NN[0].hidden_size,NN[0].output_size))
+            print('1')
+            dim_input_hidden=NN[0].input_size*NN[0].hidden_size
+            epsilon_wi=np.random.multivariate_normal([0 for x in range(dim_input_hidden)],np.identity(dim_input_hidden)).reshape((NN[0].input_size,NN[0].hidden_size))
+            print('2')            
+            NN[worker].wo=NN[worker].wo+epsilon_wo*sigma #remark:we should merge the two, and reshape the matrix
+            NN[worker].wi=NN[worker].wi+epsilon_wi*sigma
+            print('calculate reward')
+            reward_worker=getRewardEpisode(NN[worker],env)
+            print('fin')            
+            reward_workers.append(reward_worker)
+            incremental_gradient_wo+=reward_worker*epsilon_wo #same !
+            incremental_gradient_wi+=reward_worker*epsilon_wi
+            
+        
+        reward_episode.append([np.mean(reward_workers),np.median(reward_workers)])
+        
+        #Formula to modify if we put multiple chocs
+        
+        for worker in range(num_workers):
+            NN[worker].wo=NN[worker].wo-epsilon_wo*sigma+alpha*1/(num_workers*sigma)*incremental_gradient_wo
+            NN[worker].wi=NN[worker].wi-epsilon_wi*sigma+alpha*1/(num_workers*sigma)*incremental_gradient_wi
+        
+        
+    print(reward_episode)   
+    plt.plot([x[0] for x in reward_episode])
+    runNN(NN[1], env)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 ### OLD >>
 def NN(myInput,numInput,numHidden,numOutput):  
     
@@ -134,7 +196,7 @@ with tf.Session():
 
 
 # Close the session
-
+"""
 
 
 
