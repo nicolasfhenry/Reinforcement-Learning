@@ -10,6 +10,7 @@ import gym
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from time import time
 
 ### Parameters ###
 
@@ -103,14 +104,13 @@ if __name__ == "__main__":
     # Create a NN object for each worker:
        
     NN=[NeuralNetwork(numInput,numHidden,numOutput) for x in range(num_workers)]
-    
-    """ useless??
+
     params=[np.random.randn(NN[0].input_size,NN[0].hidden_size),np.random.randn(NN[0].hidden_size,NN[0].output_size)]
     
     for nn in NN:
         nn.wi=params[0]
         nn.w0=params[1]
-    """
+ 
         
     #Simulations
     
@@ -124,20 +124,25 @@ if __name__ == "__main__":
             print('worker n°',worker)
             dim_hidden_output=NN[0].hidden_size*NN[0].output_size
             epsilon_wo=np.random.multivariate_normal([0 for x in range(dim_hidden_output)],np.identity(dim_hidden_output)).reshape((NN[0].hidden_size,NN[0].output_size))
-            print('1')
+            t0 = time()            
             dim_input_hidden=NN[0].input_size*NN[0].hidden_size
             epsilon_wi=np.random.multivariate_normal([0 for x in range(dim_input_hidden)],np.identity(dim_input_hidden)).reshape((NN[0].input_size,NN[0].hidden_size))
-            print('2')            
+            t1 = time()            
             NN[worker].wo=NN[worker].wo+epsilon_wo*sigma #remark:we should merge the two, and reshape the matrix
             NN[worker].wi=NN[worker].wi+epsilon_wi*sigma
-            print('calculate reward')
+            t2 = time()
             reward_worker=getRewardEpisode(NN[worker],env)
-            print('fin')            
+            t3 = time()            
             reward_workers.append(reward_worker)
             incremental_gradient_wo+=reward_worker*epsilon_wo #same !
             incremental_gradient_wi+=reward_worker*epsilon_wi
             
-        
+                        
+            print('code 0 to 1 takes %f' %(t1-t0))
+            print('code 1 to 2 takes %f' %(t2-t1))            
+            print('code 2 to 3 takes %f' %(t3-t2))
+
+            
         reward_episode.append([np.mean(reward_workers),np.median(reward_workers)])
         
         #Formula to modify if we put multiple chocs
@@ -154,16 +159,6 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-
-
-
-
-
 """
 ### OLD >>
 def NN(myInput,numInput,numHidden,numOutput):  
@@ -174,9 +169,6 @@ def NN(myInput,numInput,numHidden,numOutput):
     output = tf.matmul(h, wo)  # The \varphi function
     action = tf.argmax(output, axis=1)    
     return(action)
-    
-    
-
     
 
 initial_observation = env.reset()
@@ -197,7 +189,3 @@ with tf.Session():
 
 # Close the session
 """
-
-
-
-
