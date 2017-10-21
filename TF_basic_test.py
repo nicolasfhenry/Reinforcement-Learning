@@ -42,15 +42,18 @@ def NN(myInput,numInput,numHidden,numOutput):
     
 
 initial_observation = env.reset()
+observation=initial_observation
+
 myInput = tf.placeholder("float", shape=[numInput])
 action=NN(myInput,numInput,numHidden,numOutput)
 
 # Intialize the Session
 with tf.Session():
-    action2=action.eval(feed_dict={myInput: initial_observation})
-    print(action2)
-    observation, reward, done, info = env.step(action2[0])
-    print(observation)
+    for step in range(100):
+        env.render()
+        evalAction=action.eval(feed_dict={myInput: observation})[0]
+        observation, reward, done, info = env.step(evalAction)
+        print(observation)
 #print(sess.run(observation, feed_dict={myInput: initial_observation}))
 
 
