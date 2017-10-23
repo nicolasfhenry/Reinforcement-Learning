@@ -71,7 +71,7 @@ class NeuralNetwork(object):
 #Initialize the environment 
 
 def initGym():
-    env=gym.make('MountainCar-v0')
+    env=gym.make('Acrobot-v1')
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.n
     
@@ -79,7 +79,7 @@ def initGym():
 
 
     
-def episodeRoute(rnn, env, observation, steps=1000):
+def episodeRoute(rnn, env, observation, steps=300):
     rewards = []
     inputs = env.reset()
     cum_reward = 0.0
@@ -101,8 +101,12 @@ def runNN(rnn, env):
     for t in range(1000):
         env.render()
         #print(observation)
+        
         outputs = rnn.feedForward(observation)  
+        print(rnn.feedForward(observation))
+        
         action = np.argmax(outputs)
+        print(action)
         observation, reward, done, info = env.step(action)
         
         if done:
@@ -115,11 +119,11 @@ if __name__ == "__main__":
     #General parameters
     
     env, num_obs, num_action=initGym()
-    num_episodes=20
+    num_episodes=5
     reward_episode=[]
-    alpha =0.01 #parameter gradient
+    alpha =0.1 #parameter gradient
     sigma=0.01 #parameter noise -update Fi
-    num_workers=200
+    num_workers=50
 
     #Initialization of the neural net for the game
     numInput=num_obs 
@@ -144,6 +148,7 @@ if __name__ == "__main__":
         incremental_gradient_wi=0
         
         for worker in range(num_workers):
+            print('worker n°',worker)
             dim_hidden_output=NN[0].hidden*NN[0].output
             epsilon_wo=np.random.multivariate_normal([0 for x in range(dim_hidden_output)],np.identity(dim_hidden_output)).reshape((NN[0].hidden,NN[0].output))
             dim_input_hidden=NN[0].input*NN[0].hidden
