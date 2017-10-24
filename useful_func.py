@@ -7,6 +7,10 @@ Created on Mon Oct 23 16:37:00 2017
 
 import gym
 import numpy as np
+import math
+
+import os
+import pickle
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -36,7 +40,18 @@ def fitness_shaping_mountainCar(rewards):
     utility=[3*c+1 for c in range(len(rewards))]
     
     return utility
+
+def fitness_shaping_tanh(rewards):
+    temp=[math.tanh(-(rewards[i]-np.mean(rewards))*0.01) for i in range(len(rewards))]
+    return temp
+
  
+    
+def fitness_shaping_paper(rewards):
+    length=len(rewards)
+    temp=[max(0,(math.log(length/2+1)-math.log(length-(s)+1)))/(sum([max(0,math.log(length/2+1)-math.log(j+1)) for j in range(length)])) for s in range(len(rewards))]
+    temp=[x-1/length for x in temp]
+    return temp
 
 def initGym():
     env=gym.make('Acrobot-v1')
@@ -80,3 +95,17 @@ def runNN(rnn, env):
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
+        
+        
+        
+def save_obj(obj, name):
+    WD = os.getcwd()
+    with open(WD +'/'+ name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+def load_obj(name):
+    WD = os.getcwd()
+    with open(WD + '/'+ name + '.pkl', 'rb') as f:
+        return pickle.load(f)
+    
+    

@@ -22,9 +22,19 @@ env, num_obs, num_action = initGym()
 initial_observation=env.reset()
 num_episodes = 100
 
-alpha = 0.0001 #parameter gradient
-sigma = 1 #parameter noise -update Fi
-num_workers=50
+#Acrobot
+alpha = 0.01 #parameter gradient
+sigma = 0.5 #parameter noise -update Fi
+num_workers=100
+################
+
+"""
+#Mountain Cart
+alpha = 0.01 #parameter gradient
+sigma = 10 #parameter noise -update Fi
+num_workers=100
+################
+"""
 
 #Initialization of the neural net for the game
 numInput=num_obs 
@@ -67,7 +77,7 @@ def worker(input_worker):
     NN.wi=NN.wi+epsilon_wi*sigma
     
     #
-    reward_worker=episodeRoute(NN,env,initial_observation,steps=300)
+    reward_worker=episodeRoute(NN,env,initial_observation,steps=750)
     
     
     return(reward_worker,epsilon_wi,epsilon_wo)
@@ -90,41 +100,44 @@ if __name__ == "__main__":
     params = [np.random.randn(numInput,numHidden),np.random.randn(numHidden,numOutput)]
       
     reward_episode=[]
-    seed = 0
+    
     for i in range (num_episodes):
         print('episode : ',i)
-        initial_observation=env.reset()
-        reward_workers=[]
-        incremental_gradient_wo=0
-        incremental_gradient_wi=0
-        np.random.seed(seed)
+        
+        
+        
+        
         seeds = np.random.randint(10000,size=num_workers)
+        
         reward_workers,epsilon_wi,epsilon_wo =  [list(x) for x in  zip(*main(seeds,params))]
         
         reward_episode.append([np.mean(reward_workers),np.median(reward_workers)])
         
-        fitness = fitness_shaping(reward_workers)
-        
         index_sort = np.argsort(reward_workers)
         reward_workers = np.sort(reward_workers)
-        reward_workers  = [x + 400 for x in reward_workers]
+        fitness = fitness_shaping_paper(reward_workers)
+
+        print(reward_workers)
         epsilon_wi = [epsilon_wi[i] for i in index_sort]
         epsilon_wo = [epsilon_wo[i] for i in index_sort]
         
-        params[0] = params[0] + alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wi,reward_workers,fitness)])
-        params[1] = params[1] + alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wo,reward_workers,fitness)])
+        #grad1:
+        #params[0] = params[0] - alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wi,reward_workers,fitness)])
+        #params[1] = params[1] - alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wo,reward_workers,fitness)])
+        #grad2:
         
+        params[0] = params[0] - alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wi,reward_workers,fitness)])
         
         
         #print([F*w for F,w in zip(reward_workers,fitness)])
         #print(reward_workers)
-        #print(fitness)
+        print(fitness)
         
-        seed += 1
+        
         print(reward_episode[-1][0])
     print(reward_episode)   
     plt.plot([x[0] for x in reward_episode])
-    
+    save_obj(params,'params-mountaincar')
     ### Test:
     NN = NeuralNetwork(numInput,numHidden,numOutput)
     NN.wi=params[0]

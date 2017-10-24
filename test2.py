@@ -7,6 +7,7 @@ Created on Fri Oct 13 20:42:49 2017
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 # Network Construction using only numpy
 
@@ -155,7 +156,7 @@ if __name__ == "__main__":
     #General parameters
     
     env, num_obs, num_action=initGym()
-    num_episodes=75
+    num_episodes=20
     reward_episode=[]
     alpha =0.01 #parameter gradient
     sigma=0.5 #parameter noise -update Fi
@@ -216,7 +217,7 @@ if __name__ == "__main__":
         
         list_reward_worker=np.sort(list_reward_worker)
         fitness=fitness_shaping_paper(list_reward_worker)
-        
+        print(list_reward_worker)
         
         #Formula to modify if we use firnaess shaping 
         incremental_gradient_wo=sum([x*y*z for (x,y,z) in zip(list_reward_worker,epsilon_wo,fitness)])
@@ -226,6 +227,6 @@ if __name__ == "__main__":
             NN[worker].wo=NN[worker].wo-epsilon_wo[worker]*sigma+alpha*1/(num_workers*sigma)*incremental_gradient_wo
             NN[worker].wi=NN[worker].wi-epsilon_wi[worker]*sigma+alpha*1/(num_workers*sigma)*incremental_gradient_wi
         
-        
+        print(reward_episode[-1][0])
     print(reward_episode)   
     plt.plot([x[0] for x in reward_episode])
