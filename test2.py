@@ -78,7 +78,7 @@ def initGym():
 
 
     
-def episodeRoute(rnn, env, observation, steps=300):
+def episodeRoute(rnn, env, observation, steps=750):
     rewards = []
     inputs = env.reset()
     cum_reward = 0.0
@@ -155,10 +155,10 @@ if __name__ == "__main__":
     #General parameters
     
     env, num_obs, num_action=initGym()
-    num_episodes=50
+    num_episodes=75
     reward_episode=[]
-    alpha =0.1 #parameter gradient
-    sigma=2 #parameter noise -update Fi
+    alpha =0.01 #parameter gradient
+    sigma=0.5 #parameter noise -update Fi
     num_workers=100
 
     #Initialization of the neural net for the game
@@ -208,13 +208,14 @@ if __name__ == "__main__":
             #incremental_gradient_wo+=reward_worker*epsilon_wo #same !
             #incremental_gradient_wi+=reward_worker*epsilon_wi
      
+        #print(np.mean(list_reward_worker))
         reward_episode.append([np.mean(list_reward_worker),np.median(list_reward_worker)])
         re_indexing=sorted(range(len(list_reward_worker)), key=lambda k: list_reward_worker[k])
         epsilon_wo=[epsilon_wo[i] for i in re_indexing]
         epsilon_wi=[epsilon_wi[i] for i in re_indexing]
         
         list_reward_worker=np.sort(list_reward_worker)
-        fitness=fitness_shaping_tanh(list_reward_worker)
+        fitness=fitness_shaping_paper(list_reward_worker)
         
         
         #Formula to modify if we use firnaess shaping 
