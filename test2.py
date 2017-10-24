@@ -97,7 +97,7 @@ def episodeRoute(rnn, env, observation, steps=300):
     return cum_reward
 
 def runNN(rnn, env):
-    initial_observation = env.reset()
+    observation = env.reset()
     #observation=[ 0.99575298 , 0.09206522, 0.99953504,  0.03049091, -0.00171904, -0.08695283]
     print(observation)
     
@@ -125,12 +125,18 @@ def fitness_shaping(rewards):
 def fitness_shaping_cheat(rewards):
     for i in range(len(rewards)):
         if rewards[i]==min(rewards):
-            utility.append(0.01)
+            utility.append(0.001)
         else :
             utility.append((10*i+1)/(10* len(rewards)))
     
     return utility
 
+
+def fitness_shaping_paper(rewards):
+    length=len(rewards)
+    temp=[max(0,(math.log(length/2+1)-math.log(length-(s)+1)))/(sum([max(0,math.log(length/2+1)-math.log(j+1)) for j in range(100)])) for s in range(len(rewards))]
+    temp=[x-1/length for x in temp]
+    return temp
 
 def fitness_shaping_mountainCar(rewards):
     utility=[3*c+1 for c in range(len(rewards))]
@@ -138,14 +144,21 @@ def fitness_shaping_mountainCar(rewards):
     return utility
 
 
+def fitness_shaping_tanh(rewards):
+    length=len(rewards)
+    temp=[math.tanh(-(rewards[i]-np.mean(rewards))*0.01) for i in range(len(rewards))]
+    return temp
+
+
+
 if __name__ == "__main__":
     #General parameters
     
     env, num_obs, num_action=initGym()
-    num_episodes=100
+    num_episodes=50
     reward_episode=[]
-    alpha =0.0001 #parameter gradient
-    sigma=1 #parameter noise -update Fi
+    alpha =0.1 #parameter gradient
+    sigma=2 #parameter noise -update Fi
     num_workers=100
 
     #Initialization of the neural net for the game
@@ -196,8 +209,13 @@ if __name__ == "__main__":
             #incremental_gradient_wi+=reward_worker*epsilon_wi
      
         reward_episode.append([np.mean(list_reward_worker),np.median(list_reward_worker)])
-        fitness=fitness_shaping(list_reward_worker)
+        re_indexing=sorted(range(len(list_reward_worker)), key=lambda k: list_reward_worker[k])
+        epsilon_wo=[epsilon_wo[i] for i in re_indexing]
+        epsilon_wi=[epsilon_wi[i] for i in re_indexing]
+        
         list_reward_worker=np.sort(list_reward_worker)
+        fitness=fitness_shaping_tanh(list_reward_worker)
+        
         
         #Formula to modify if we use firnaess shaping 
         incremental_gradient_wo=sum([x*y*z for (x,y,z) in zip(list_reward_worker,epsilon_wo,fitness)])
