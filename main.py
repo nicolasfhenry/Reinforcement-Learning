@@ -20,9 +20,9 @@ from useful_func import *
 
 env, num_obs, num_action = initGym()
 initial_observation=env.reset()
-num_episodes=20
+num_episodes = 100
 
-alpha = 1e-5 #parameter gradient
+alpha = 0.0001 #parameter gradient
 sigma = 1 #parameter noise -update Fi
 num_workers=50
 
@@ -35,54 +35,60 @@ dim_input_hidden=numInput*numHidden
 dim_hidden_output=numHidden*numOutput
     
 
-params = [np.random.randn(numInput,numHidden),np.random.randn(numHidden,numOutput)]
 
 
 
-def worker(seed):
+
+def worker(input_worker):
     """Explanations"""
     #Global variables:
     global numInput,numOutput,numHidden
     global dim_hidden_output, dim_hidden_output
-    global params, sigma
+    global sigma
     global env
     global initial_observation
+    #Lovcal:
+    
+    seed = input_worker[0]
+    p = input_worker[1]
     
     np.random.seed(seed)
     #Neural Networks:
     NN = NeuralNetwork(numInput,numHidden,numOutput)
     
-    NN.wi=params[0]
-    NN.w0=params[1]
+    NN.wi=p[0]
+    NN.wo=p[1]
     
     #distortions
     epsilon_wo = np.random.multivariate_normal([0 for x in range(dim_hidden_output)],np.identity(dim_hidden_output)).reshape((numHidden,numOutput))
-    epsilon_wi=np.random.multivariate_normal([0 for x in range(dim_input_hidden)],np.identity(dim_input_hidden)).reshape((numInput,numHidden))
+    epsilon_wi = np.random.multivariate_normal([0 for x in range(dim_input_hidden)],np.identity(dim_input_hidden)).reshape((numInput,numHidden))
     #parameters update
     NN.wo=NN.wo+epsilon_wo*sigma #remark:we should merge the two, and reshape the matrix
     NN.wi=NN.wi+epsilon_wi*sigma
     
     #
-    reward_worker=episodeRoute(NN,env,initial_observation)
+    reward_worker=episodeRoute(NN,env,initial_observation,steps=300)
     
     
     return(reward_worker,epsilon_wi,epsilon_wo)
 
 
-def main(seeds):
+def main(seeds,params):
     
+    input_worker = list(zip(seeds,[params]*len(seeds)))
     
     pool = multiprocessing.Pool(4)
-    results = pool.map(worker,seeds)
+    results = pool.map(worker,input_worker)
 
     pool.close()
     pool.join()
 
     return(results)
-
+#%%
 if __name__ == "__main__":
     #General parameters
-    
+    params = [np.random.randn(numInput,numHidden),np.random.randn(numHidden,numOutput)]
+      
     reward_episode=[]
     seed = 0
     for i in range (num_episodes):
@@ -91,16 +97,36 @@ if __name__ == "__main__":
         reward_workers=[]
         incremental_gradient_wo=0
         incremental_gradient_wi=0
-        np.random.seed(50)
+        np.random.seed(seed)
         seeds = np.random.randint(10000,size=num_workers)
-        reward_workers,epsilon_wi,epsilon_wo =  [list(x) for x in  zip(*main(seeds))]
+        reward_workers,epsilon_wi,epsilon_wo =  [list(x) for x in  zip(*main(seeds,params))]
         
         reward_episode.append([np.mean(reward_workers),np.median(reward_workers)])
         
-        params[0] = params[0] + alpha*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_wi,reward_worker)])
-        params[1] = params[1] + alpha*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_wo,reward_worker)])
+        fitness = fitness_shaping(reward_workers)
         
-        seed+=1
+        index_sort = np.argsort(reward_workers)
+        reward_workers = np.sort(reward_workers)
+        reward_workers  = [x + 400 for x in reward_workers]
+        epsilon_wi = [epsilon_wi[i] for i in index_sort]
+        epsilon_wo = [epsilon_wo[i] for i in index_sort]
+        
+        params[0] = params[0] + alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wi,reward_workers,fitness)])
+        params[1] = params[1] + alpha*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_wo,reward_workers,fitness)])
+        
+        
+        
+        #print([F*w for F,w in zip(reward_workers,fitness)])
+        #print(reward_workers)
+        #print(fitness)
+        
+        seed += 1
+        print(reward_episode[-1][0])
     print(reward_episode)   
     plt.plot([x[0] for x in reward_episode])
-    #runNN(NN[1], env)    
+    
+    ### Test:
+    NN = NeuralNetwork(numInput,numHidden,numOutput)
+    NN.wi=params[0]
+    NN.wo=params[1]
+    runNN(NN, env)    

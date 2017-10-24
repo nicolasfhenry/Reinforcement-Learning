@@ -14,10 +14,32 @@ def sigmoid(x):
 # sigmoid(y) * (1.0 - sigmoid(y)), the way we use this y is already a sigmoid
 
 def dsigmoid(y):
-    return y * (1.0 - y) 
+    return y * (1.0 - y)
+
+def fitness_shaping(rewards):
+    size = len(rewards)
+    utility=[(10*c+1)/(10* size) for c in range(size)]
+    
+    return utility
+    
+def fitness_shaping_cheat(rewards):
+    for i in range(len(rewards)):
+        if rewards[i]==min(rewards):
+            utility.append(0.01)
+        else :
+            utility.append((10*i+1)/(10* len(rewards)))
+    
+    return utility
+
+
+def fitness_shaping_mountainCar(rewards):
+    utility=[3*c+1 for c in range(len(rewards))]
+    
+    return utility
+ 
 
 def initGym():
-    env=gym.make('MountainCar-v0')
+    env=gym.make('Acrobot-v1')
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.n
     
@@ -49,10 +71,10 @@ def runNN(rnn, env):
         #print(observation)
         
         outputs = rnn.feedForward(observation)  
-        print(rnn.feedForward(observation))
+        #print(rnn.feedForward(observation))
         
         action = np.argmax(outputs)
-        print(action)
+        #print(action)
         observation, reward, done, info = env.step(action)
         
         if done:
