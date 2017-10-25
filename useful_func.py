@@ -55,6 +55,8 @@ def fitness_shaping_paper(rewards):
 
 def initGym():
     env=gym.make('Acrobot-v1')
+    #env=gym.make('CartPole-v0')
+    #env=gym.make('Pendulum-v0')
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.n
     
