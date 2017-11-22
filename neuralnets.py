@@ -22,9 +22,9 @@ class NeuralNetwork(object):
         self.output = output
         
         # set up array of 1s for activations
-        self.ai = [1.0] * self.input
-        self.ah = [1.0] * self.hidden
-        self.ao = [1.0] * self.output
+        self.ai = [0.0] * self.input
+        self.ah = [0.0] * self.hidden
+        self.ao = [0.0] * self.output
         
         # create randomized weights
         self.wi = np.random.randn(self.input, self.hidden) 
@@ -42,14 +42,15 @@ class NeuralNetwork(object):
         # input activations
         self.ai = input
         # hidden activations
-        self.ah=np.dot(np.transpose(self.wi),)
+        self.ah=np.dot(np.transpose(self.wi),self.ai)
         for j in range(self.hidden):
-            sumInput = np.dot(self.ai[0:self.input],[self.wi[i][j] for i in range(self.input)])            
-            self.ah[j] = sigmoid(sumInput)
+            self.ah[j] = sigmoid(self.ah[j])
         # output activations
+        self.ao=np.dot(np.transpose(self.wo),self.ah)
+        
         for k in range(self.output):            
-            sumHidden = np.dot(self.ah[0:self.hidden],[self.wo[i][k] for i in range(self.hidden)])            
-            self.ao[k] = sigmoid(sumHidden)
+            self.ao[k] = sigmoid(self.ao[k])
+        
         return self.ao
     
     
