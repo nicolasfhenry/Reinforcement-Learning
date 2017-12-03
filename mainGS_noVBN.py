@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import time
 
 from neuralnets_VBN import NeuralNetwork
-from useful_func_mujoco import *
+from useful_func import *
 
 
 #Params:
