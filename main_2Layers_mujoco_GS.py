@@ -31,7 +31,7 @@ num_episodes = 50
 #Acrobot
 alphaValue = 0.01 #parameter gradient
 sigma = 0.08 #parameter noise -update Fi
-num_workers=100
+num_workers=300
 ################
 
 def alpha(i, alphaValue):
@@ -70,8 +70,9 @@ dim_hidden_output=numHidden*numOutput
 
 numInput=num_obs 
 numOutput=num_action
-numHidden1=num_obs*10 # 8 neurons per Hidden layer
-numHidden2=num_obs*10
+factor=5
+numHidden1=num_obs*factor # 8 neurons per Hidden layer
+numHidden2=num_obs*factor
 print(numHidden1,numHidden2)
 
 dim_input_hidden1=numInput*numHidden1
@@ -194,9 +195,9 @@ def worker_toeplitz_GS(input_worker):
     
     
     #distortions
-    epsilon_wo= epsilon[0:dim_hidden2_output].reshape((numOutput,numHidden2))
-    epsilon_wh= epsilon[dim_hidden2_output:dim_hidden2_output+dim_hidden1_hidden2].reshape((numHidden2,numHidden1))    
-    epsilon_wi= epsilon[dim_hidden2_output+dim_hidden1_hidden2:dim_hidden2_output+dim_hidden1_hidden2+dim_input_hidden1].reshape((numHidden1,numInput))
+    epsilon_wo= epsilon[numInput+2*numHidden1+numHidden2:]
+    epsilon_wh= epsilon[numInput+numHidden1:numInput+2*numHidden1+numHidden2]
+    epsilon_wi= epsilon[0:numInput+numHidden1]
     
     
     '''
@@ -316,7 +317,7 @@ if __name__ == "__main__":
        LA PROCHAINE LIGNE EST A CHANGER POUR ENVOYER DES EPSILONS DIFFERENTS D'UN EPISODE A UN AUTRE
        
     '''
-    num_samples=dim_hidden2_output + dim_input_hidden1 + dim_hidden1_hidden2
+    num_samples=numInput+2*numHidden1+2*numHidden2+numOutput
     num_workers=min(num_samples,num_workers)
         
     epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_samples)]      
@@ -388,7 +389,7 @@ if __name__ == "__main__":
 
 
     #plt.plot([x[0] for x in reward_episode])
-    save_obj(params,'params-v2Layers_{}_{}_{}_{}_{}_+_GS_toeplitz'.format(num_episodes,alphaValue,sigma,np.mean(reward_workers),np.median(reward_workers)))
+    save_obj(params,'params-v2Layers_{}_{}_{}_{}_{}_+_GS_toeplitz_{}'.format(num_episodes,alphaValue,sigma,np.mean(reward_workers),np.median(reward_workers),factor))
     ### Test:
     '''
     NN = NeuralNetwork(numInput,numHidden,numOutput)
