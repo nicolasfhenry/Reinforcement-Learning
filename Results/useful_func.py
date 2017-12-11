@@ -117,7 +117,7 @@ def save_obj(obj, name):
 def load_obj(name):
     WD = os.getcwd()
     with open(WD + '/'+ name + '.pkl', 'rb') as f:
-        return pickle.load(f)
+        return pickle.load(f,encoding='latin1')
 
 
 def gram_schmidt(vectors):
