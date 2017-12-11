@@ -15,7 +15,7 @@ Created on Wed Oct 18 20:11:37 2017
 import numpy as np
 import multiprocessing  
 from operator import add
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 
 from neuralnets_VBN import NeuralNetwork
