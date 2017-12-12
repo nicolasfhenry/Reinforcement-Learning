@@ -27,7 +27,7 @@ from useful_func import *
 
 env, num_obs, num_action = initGym()
 
-num_episodes = 2
+num_episodes = 50
 
 
 #Acrobot
