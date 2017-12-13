@@ -399,4 +399,4 @@ if __name__ == "__main__":
     result['alpha'] = alpha_update
     
     save_obj(result, str(os.path.basename(__file__)))
-
+    save_obj(params,'params-' +str(os.path.basename(__file__)))

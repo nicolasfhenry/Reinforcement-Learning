@@ -62,7 +62,7 @@ print( '*' * 50)
 print( '*' * 50)
 
 #ZipFile:
-zipf = zipfile.ZipFile('Download.zip', 'w', zipfile.ZIP_DEFLATED)
+zipf = zipfile.ZipFile('Results.zip', 'w', zipfile.ZIP_DEFLATED)
 zipf.write('mainGS_mirror_noVBN.py.pkl') #1
 zipf.write('mainGS_mirror_VBN.py.pkl') #2
 zipf.write('mainGS_noMirror_VBN.py.pkl') #3
@@ -73,6 +73,15 @@ zipf.write('main_noGS_VBN.py.pkl') #7
 
 zipf.close()
 
+
+zipf = zipfile.ZipFile('Params.zip', 'w', zipfile.ZIP_DEFLATED)
+zipf.write('params-mainGS_mirror_noVBN.py.pkl') #1
+zipf.write('params-mainGS_mirror_VBN.py.pkl') #2
+zipf.write('params-mainGS_noMirror_VBN.py.pkl') #3
+zipf.write('params-mainGS_noVBN.py.pkl') #4
+zipf.write('params-mainGS_noVBN_noFitness.py.pkl') #5
+zipf.write('params-main_noGS_noVBN.py.pkl') #6
+zipf.write('params-main_noGS_VBN.py.pkl') #7
 
 
 

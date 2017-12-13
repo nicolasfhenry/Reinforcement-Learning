@@ -420,3 +420,4 @@ if __name__ == "__main__":
     
     
     save_obj(result, str(os.path.basename(__file__)))
+    save_obj(params,'params-' +str(os.path.basename(__file__)))
