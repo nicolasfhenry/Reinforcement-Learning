@@ -299,7 +299,7 @@ def computeVBN(seeds_VBN, params):
 
 if __name__ == "__main__":
     #General parameters
-    params = [np.random.randn(numHidden1,numInput), np.random.randn(numHidden2,numHidden1),np.random.randn(numOutput,numHidden2),np.random.randn(numHidden1,1),np.zeros((numHidden1,1)),np.random.randn(numHidden2,1),np.zeros((numHidden2,1))]  
+    params = [0.01 * np.random.randn(numHidden1,numInput), 0.01 * np.random.randn(numHidden2,numHidden1),0.01 * np.random.randn(numOutput,numHidden2),0.01 * np.random.randn(numHidden1,1),0.01 * np.zeros((numHidden1,1)),0.01 * np.random.randn(numHidden2,1),0.01 * np.zeros((numHidden2,1))]  
     
     num_VBN_workers=20
     seeds_VBN = np.random.randint(10000,size=num_VBN_workers)
@@ -356,8 +356,10 @@ if __name__ == "__main__":
         epsilons=epsilons_ini#GS_epsilons_ini+GS_epsilons_neg
 
         
-        seeds = np.random.randint(10000,size=num_workers)
-
+        #seeds = np.random.randint(10000,size=num_workers)
+        #seeds = np.zeros(num_workers)
+        seeds = np.random.randint(5,size=num_workers)
+        
         #est-ce que je fais du mirror sampling!!
         reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini,epsilon_gamma1_ini,epsilon_beta1_ini,epsilon_gamma2_ini,epsilon_beta2_ini =  [list(x) for x in  zip(*main(seeds,epsilons,params))]
         

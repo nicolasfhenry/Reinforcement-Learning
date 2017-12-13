@@ -276,7 +276,7 @@ def computeVBN(seeds_VBN, params):
 
 if __name__ == "__main__":
     #General parameters
-    params = [np.random.randn(numHidden1,numInput), np.random.randn(numHidden2,numHidden1),np.random.randn(numOutput,numHidden2)]  
+    params = [0.01 * np.random.randn(numHidden1,numInput), 0.01 * np.random.randn(numHidden2,numHidden1),0.01 * np.random.randn(numOutput,numHidden2)]  
     
     num_VBN_workers=20
     seeds_VBN = np.random.randint(10000,size=num_VBN_workers)
@@ -333,9 +333,10 @@ if __name__ == "__main__":
         #epsilons=GS_epsilons_ini+GS_epsilons_neg
         epsilons=GS_epsilons_ini        
         
-        seeds = np.random.randint(10000,size=num_workers)
-
-
+        #seeds = np.random.randint(10000,size=num_workers)
+        #seeds = np.zeros(num_workers)
+        seeds = np.random.randint(5,size=num_workers)
+        
         reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 =  [list(x) for x in  zip(*main(seeds,epsilons,params))]
         
         #reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 = pairwise_selection(reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini)
@@ -375,7 +376,7 @@ if __name__ == "__main__":
         params[1] = params[1] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W2,reward_workers)])
         params[2] = params[2] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W3,reward_workers)])
         
-
+        
         #grad1:
         
         
