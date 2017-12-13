@@ -332,8 +332,7 @@ if __name__ == "__main__":
         GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
         epsilons=GS_epsilons_ini+GS_epsilons_neg
         seeds = np.random.randint(10000,size=num_workers)
-        reward_workers_ini, epsilon_W1_ini, epsilon_W2_ini, epsilon_W3_ini =  [list(x) for x in  zip(*main(seeds
-,epsilons,params))]
+        reward_workers_ini, epsilon_W1_ini, epsilon_W2_ini, epsilon_W3_ini =  [list(x) for x in  zip(*main(seeds,epsilons,params))]
         
         reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 = pairwise_selection(reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini)
         

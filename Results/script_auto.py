@@ -45,7 +45,21 @@ os.system('python mainGS_noVBN_noFitness.py')
 print( '*' * 50)
 print( '*' * 50)
 
+print('6/7')
 
+print( '*' * 50)
+print( '*' * 50)
+os.system('python main_noGS_noVBN.py')
+
+print( '*' * 50)
+print( '*' * 50)
+
+print('6/7')
+
+os.system('python main_noGS_VBN.py')
+
+print( '*' * 50)
+print( '*' * 50)
 
 #ZipFile:
 zipf = zipfile.ZipFile('Download.zip', 'w', zipfile.ZIP_DEFLATED)
@@ -54,6 +68,9 @@ zipf.write('mainGS_mirror_VBN.py.pkl')
 zipf.write('mainGS_noMirror_VBN.py.pkl')
 zipf.write('mainGS_noVBN.py.pkl')
 zipf.write('mainGS_noVBN_noFitness.py.pkl')
+zipf.write('main_noGS_noVBN.py.pkl')
+zipf.write('main_noGS_VBN.py.pkl')
+
 zipf.close()
 
 
