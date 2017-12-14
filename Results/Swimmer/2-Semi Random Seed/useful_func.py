@@ -61,17 +61,22 @@ def fitness_shaping_paper(rewards):
     return temp
 
 def initGym():
-    
-    env=gym.make('Swimmer-v1')
-    #env=gym.make('Acrobot-v1')
+    '''
+    env=gym.make('Acrobot-v1')
     #env=gym.make('Asteroids-v0')
-    #env=gym.make('MountainCar-v0')
+    
     #env=gym.make('CartPole-v0')
     #env=gym.make('Pendulum-v0')
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.n
+    '''
+    env=gym.make('Swimmer-v1')
+    obs_dim = env.observation_space.shape[0]
+    act_dim = env.action_space.shape[0]
+    
     
     return env, obs_dim , act_dim
+
 
 
     
