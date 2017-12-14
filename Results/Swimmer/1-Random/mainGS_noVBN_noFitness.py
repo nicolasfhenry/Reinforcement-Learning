@@ -12,6 +12,10 @@ Created on Wed Oct 18 20:11:37 2017
 """
 
 #import tensorflow as tf
+
+import sys
+sys.path.append('/home/bamouhamadou001/mujoco-py/')
+
 import numpy as np
 import multiprocessing  
 from operator import add

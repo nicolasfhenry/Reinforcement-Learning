@@ -11,6 +11,10 @@ import math
 
 import os
 import pickle
+
+import sys
+sys.path.append('/home/bamouhamadou001/mujoco-py/')
+
 import mujoco_py
 
 def sigmoid(x):
