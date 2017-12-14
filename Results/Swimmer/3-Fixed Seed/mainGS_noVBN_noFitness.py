@@ -371,9 +371,9 @@ if __name__ == "__main__":
         
         alpha_update.append(tmp)
         
-        params[0] = params[0] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W1,reward_workers)])
-        params[1] = params[1] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W2,reward_workers)])
-        params[2] = params[2] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W3,reward_workers)])
+        params[0] = params[0] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W1,reward_workers)])
+        params[1] = params[1] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W2,reward_workers)])
+        params[2] = params[2] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F for eps,F in zip(epsilon_W3,reward_workers)])
         
         
         #grad1:

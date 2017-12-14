@@ -397,13 +397,13 @@ if __name__ == "__main__":
         
         alpha_update.append(tmp)
         
-        params[0] = params[0] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W1,reward_workers,fitness)])
-        params[1] = params[1] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W2,reward_workers,fitness)])
-        params[2] = params[2] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W3,reward_workers,fitness)])
-        params[3] = params[3] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_gamma1,reward_workers,fitness)])
-        params[4] = params[4] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_beta1,reward_workers,fitness)])
-        params[5] = params[5] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_gamma2,reward_workers,fitness)])
-        params[6] = params[6] - alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_beta2,reward_workers,fitness)])
+        params[0] = params[0] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W1,reward_workers,fitness)])
+        params[1] = params[1] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W2,reward_workers,fitness)])
+        params[2] = params[2] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W3,reward_workers,fitness)])
+        params[3] = params[3] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_gamma1,reward_workers,fitness)])
+        params[4] = params[4] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_beta1,reward_workers,fitness)])
+        params[5] = params[5] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_gamma2,reward_workers,fitness)])
+        params[6] = params[6] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_beta2,reward_workers,fitness)])
         
         #grad1:
         '''
