@@ -84,4 +84,4 @@ zipf.write('params-main_noGS_noVBN.py.pkl') #6
 zipf.write('params-main_noGS_VBN.py.pkl') #7
 
 
-
+zipf.close()
