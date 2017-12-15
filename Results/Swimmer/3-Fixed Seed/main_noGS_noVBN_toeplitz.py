@@ -29,7 +29,7 @@ num_episodes = 50
 
 
 #Acrobot
-alphaValue = 0.01 #parameter gradient
+alphaValue = 0.009 #parameter gradient
 sigma = 0.08 #parameter noise -update Fi
 num_workers=300
 decay_start=int(num_episodes/5)
@@ -288,7 +288,12 @@ if __name__ == "__main__":
     
     reward_episode=[]
     alpha_update = []     
+    num_samples = numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput                
+    num_workers=min(num_samples,num_workers)
+    random_eps=[np.random.randint(0,high=num_workers) for x in range(num_episodes)]    
+    epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
     fitness = fitness_shaping_paper(range(num_workers))
+    
     
     for episode in range (num_episodes):
         
@@ -299,8 +304,8 @@ if __name__ == "__main__":
         
         
         #sum_zi,sum_zh1,sum_zh2,sum_zi_sq,sum_zh1_sq,sum_zh2_sq,num_step_list =  [list(x) for x in  zip(*computeVBN(seeds_VBN,params))]
-        sum_zh1,sum_zh2,sum_zh1_sq,sum_zh2_sq,num_step_list =  [list(x) for x in  zip(*computeVBN(seeds_VBN,params))]
-               
+        #sum_zh1,sum_zh2,sum_zh1_sq,sum_zh2_sq,num_step_list =  [list(x) for x in  zip(*computeVBN(seeds_VBN,params))]
+        '''       
         num_step=float(sum(num_step_list))
         normalizing_factor=1/num_step
        
@@ -317,25 +322,28 @@ if __name__ == "__main__":
         var_zh2=[i-j for i,j in zip(mu2_zh2, square(mu_zh2))]
         
         #save VBN statistics:
-        VBN_dict = {}
-        #VBN_dict['mu_i']=np.array(mu_zi)
-        #VBN_dict['var_i']=np.array(var_zi)
-        VBN_dict['mu_h1']=np.array(mu_zh1)
-        VBN_dict['var_h1']=np.array(var_zh1)
-        VBN_dict['mu_h2']=np.array(mu_zh2)
-        VBN_dict['var_h2']=np.array(var_zh2)
         # here we need to find a way to pass this argument in the workers, make it a global var ?  YES        
                 
 
+        '''
+        VBN_dict = {}
+        #VBN_dict['mu_i']=np.array(mu_zi)
+        #VBN_dict['var_i']=np.array(var_zi)
+        VBN_dict['mu_h1']=np.zeros(numHidden1)
+        VBN_dict['var_h1']=np.zeros(numHidden1)
+        VBN_dict['mu_h2']=np.zeros(numHidden2)
+        VBN_dict['var_h2']=np.zeros(numHidden2)
+                
         
         print('Episode Computations')        
         
         #Creating Epsilon       
      
         
-        num_samples = numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput       
         
-        epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+        #epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+        epsilons_ini=np.array([ 0.5*(x+epsilons_ini[random_eps[episode]]) for x in epsilons_ini])
+               
         #GS_epsilons_ini=gram_schmidt(epsilons_ini)
         #GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
         #epsilons=GS_epsilons_ini+GS_epsilons_neg
@@ -355,7 +363,7 @@ if __name__ == "__main__":
         
         
         
-       	print("moy reward:")
+        print("moy reward:")
         print(np.mean(reward_workers))
         print("MEDIAN reward:")
         print(np.median(reward_workers))

@@ -29,7 +29,7 @@ num_episodes = 50
 
 
 #Acrobot
-alphaValue = 0.05 #parameter gradient
+alphaValue = 0.01 #parameter gradient
 sigma = 0.08 #parameter noise -update Fi
 num_workers=300
 decay_start=int(num_episodes/5)
@@ -37,7 +37,7 @@ decay_start=int(num_episodes/5)
 ################
 
 def alpha(i, alphaValue):
-    whenDecay=int(num_episodes/2)
+    whenDecay=int(num_episodes/3)
     if (i<whenDecay):
         return(alphaValue)
     elif (i>=whenDecay)&(i<whenDecay*2-5):
@@ -288,12 +288,11 @@ if __name__ == "__main__":
     
     reward_episode=[]
     alpha_update = []     
-    num_samples = numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput           
+    num_samples = numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput                
     num_workers=min(num_samples,num_workers)
-    fitness = fitness_shaping_paper(range(num_workers))
-    
     random_eps=[np.random.randint(0,high=num_workers) for x in range(num_episodes)]    
     epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+    fitness = fitness_shaping_paper(range(num_workers))
     
     for episode in range (num_episodes):
         
@@ -338,23 +337,21 @@ if __name__ == "__main__":
         #Creating Epsilon       
      
         
-               
+        
         #epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
         epsilons_ini=np.array([ 0.5*(x+epsilons_ini[random_eps[episode]]) for x in epsilons_ini])
                 
-        GS_epsilons_ini=gram_schmidt(epsilons_ini)
-        GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
-        epsilons=GS_epsilons_ini+GS_epsilons_neg
-
-        num_workers=2*num_samples     
-
-   
+        #GS_epsilons_ini=gram_schmidt(epsilons_ini)
+        #GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
+        #epsilons=GS_epsilons_ini+GS_epsilons_neg
+        epsilons=epsilons_ini#GS_epsilons_ini        
+        
         #seeds = np.random.randint(10000,size=num_workers)
         seeds = np.zeros(num_workers)
-     
-        reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini =  [list(x) for x in  zip(*main(seeds,epsilons,params))]
+
+        reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 =  [list(x) for x in  zip(*main(seeds,epsilons,params))]
         
-        reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 = pairwise_selection(reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini)
+        #reward_workers,epsilon_W1,epsilon_W2,epsilon_W3 = pairwise_selection(reward_workers_ini,epsilon_W1_ini,epsilon_W2_ini,epsilon_W3_ini)
         
         reward_episode.append([np.mean(reward_workers),np.median(reward_workers),reward_workers])
 
@@ -382,14 +379,14 @@ if __name__ == "__main__":
         print(params[0])
        
         print("update:")
-        tmp = alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W1,reward_workers,fitness)])
+        tmp = alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*w for eps,w in zip(epsilon_W1,reward_workers)])
         print(tmp)
         
         alpha_update.append(tmp)
         
-        params[0] = params[0] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W1,reward_workers,fitness)])
-        params[1] = params[1] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W2,reward_workers,fitness)])
-        params[2] = params[2] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*F*w for eps,F,w in zip(epsilon_W3,reward_workers,fitness)])
+        params[0] = params[0] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*w for eps,w in zip(epsilon_W1,reward_workers)])
+        params[1] = params[1] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*w for eps,w in zip(epsilon_W2,reward_workers)])
+        params[2] = params[2] + alpha(episode,alphaValue)*(1/(num_workers*sigma))*sum([eps*w for eps,w in zip(epsilon_W3,reward_workers)])
         
 
         #grad1:

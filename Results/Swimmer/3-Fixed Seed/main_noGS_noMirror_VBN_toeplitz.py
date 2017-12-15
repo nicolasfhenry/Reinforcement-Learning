@@ -305,7 +305,14 @@ if __name__ == "__main__":
     seeds_VBN = np.random.randint(10000,size=num_VBN_workers)
     
     reward_episode=[]
-    alpha_update = []    
+    alpha_update = []
+    num_samples = numInput+numHidden1+numHidden1+numHidden2+numHidden2+numOutput                
+    num_workers=min(num_samples,num_workers)
+    random_eps=[np.random.randint(0,high=num_workers) for x in range(num_episodes)]    
+    epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+    fitness = fitness_shaping_paper(reward_workers)
+        
+    
     for episode in range (num_episodes):
         
         print('episode : ',episode)
@@ -346,11 +353,9 @@ if __name__ == "__main__":
         
         #Creating Epsilon       
         
-        num_samples= numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput  + 2*numHidden1 + 2*numHidden2
-        num_workers=num_samples
-      
         
-        epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_samples)]      
+        
+        epsilons_ini=np.array([ 0.5*(x+epsilons_ini[random_eps[episode]]) for x in epsilons_ini])
         #GS_epsilons_ini=gram_schmidt(epsilons_ini)
         #GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
         epsilons=epsilons_ini
@@ -366,7 +371,6 @@ if __name__ == "__main__":
 
         index_sort = np.argsort(reward_workers)
         reward_workers = np.sort(reward_workers)
-        fitness = fitness_shaping_paper(reward_workers)
         
         
         print("moy reward:")

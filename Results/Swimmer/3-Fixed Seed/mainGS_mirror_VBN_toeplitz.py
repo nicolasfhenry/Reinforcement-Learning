@@ -303,7 +303,12 @@ if __name__ == "__main__":
     
     num_VBN_workers=20
     seeds_VBN = np.random.randint(10000,size=num_VBN_workers)
+    num_samples = numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput                
+    num_workers=min(num_samples,num_workers)
+    random_eps=[np.random.randint(0,high=num_workers) for x in range(num_episodes)]    
+    epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
     
+    fitness = fitness_shaping_paper(reward_workers)     
     reward_episode=[]
     alpha_update = []    
     for episode in range (num_episodes):
@@ -346,11 +351,7 @@ if __name__ == "__main__":
         
         #Creating Epsilon       
         
-        num_samples= numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput  + 2*numHidden1 + 2*numHidden2
-        
-        num_workers=min(num_samples,num_workers)
-        print(num_samples)
-        epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+        epsilons_ini=np.array([ 0.5*(x+epsilons_ini[random_eps[episode]]) for x in epsilons_ini])
         print("done generating epislons")
         GS_epsilons_ini=gram_schmidt(epsilons_ini)
         GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
