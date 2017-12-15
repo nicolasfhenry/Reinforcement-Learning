@@ -347,14 +347,16 @@ if __name__ == "__main__":
         #Creating Epsilon       
         
         num_samples= numInput+numHidden1 + numHidden1+numHidden2 + numHidden2+numOutput  + 2*numHidden1 + 2*numHidden2
-        num_workers=2*num_samples
-      
         
-        epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_samples)]      
+        num_workers=min(num_samples,num_workers)
+        print(num_samples)
+        epsilons_ini = [np.random.multivariate_normal(np.zeros(num_samples),np.identity(num_samples)) for i in range(num_workers)]      
+        print("done generating epislons")
         GS_epsilons_ini=gram_schmidt(epsilons_ini)
         GS_epsilons_neg=[-elem for elem in GS_epsilons_ini]
         epsilons=GS_epsilons_ini+GS_epsilons_neg
 
+        num_workers=2*num_workers
         
         #seeds = np.random.randint(10000,size=num_workers)
         seeds = np.zeros(num_workers)
